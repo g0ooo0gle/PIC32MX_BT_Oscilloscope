@@ -54,7 +54,7 @@
 #pragma config JTAGEN   = OFF           // JTAG Enable
 #pragma config DEBUG    = OFF           // Background Debugger Enable
 
-// ADC Config???????
+// ADC コンフィギュレーション
 #define AD1CON1R ADC_MODULE_OFF | ADC_FORMAT_INTG16 | ADC_CLK_MANUAL | ADC_AUTO_SAMPLING_ON |ADC_SAMP_ON
 #define AD1CON2R ADC_VREF_AVDD_AVSS | ADC_OFFSET_CAL_DISABLE | ADC_SCAN_OFF | ADC_SAMPLES_PER_INT_4 | ADC_ALT_BUF_OFF | ADC_ALT_INPUT_OFF
 #define AD1CON3R ADC_SAMPLE_TIME_3 | ADC_CONV_CLK_SYSTEM | ADC_CONV_CLK_6Tcy
@@ -109,9 +109,9 @@ int main(void)
     {
         mPORTBSetBits( BIT_5 );
 
-        ConvertADC10();				// ????
-	while(BusyADC10());			// ??????(1?????)
-	Result = ReadADC10(0);			// ????????
+        ConvertADC10();				// 変換開始
+	while(BusyADC10());			// 変換完了待ち(1チャンネル分)
+	Result = ReadADC10(0);			// 変換結果読み出し
 
 /*   
         if(ADCFlag)
@@ -166,7 +166,7 @@ void __ISR(32, ipl2) U1RX_interrupt(void){
 }
 
 /**********************************
-*  ?????? usec
+*  ディレイ関数 usec
 **********************************/
 void delay_us(unsigned int usec){
  unsigned int i, delay;
@@ -176,7 +176,7 @@ void delay_us(unsigned int usec){
 }
 
 /**********************************
-*  ?????? msec
+*  ディレイ関数 msec
 **********************************/
 void delay_ms(unsigned int msec){
  unsigned int i;
