@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------------------
- * Bluetooth ???????
+ * Bluetooth オシロスコープ
  * -----------------------------------------------------------------------------
  * 
  * File:        main.c
@@ -20,14 +20,14 @@
 #include <plib.h>
 #include <stdlib.h>
 
-//*??????******************************************************************
+//*各種クロック******************************************************************
 // SYSCLK = 40 MHz (8MHz Crystal/ FPLLIDIV * FPLLMUL / FPLLODIV)
 // PBCLK  = 40 MHz
-#define SYSCLK  40000000L                      //????????
-#define SYSCLKdiv10MHz    (SYSCLK/10000000)    //???????
+#define SYSCLK  40000000L                      //システムクロック
+#define SYSCLKdiv10MHz    (SYSCLK/10000000)    //ディレイ関数クロック
 
 
-// *????????????????***********************************************
+// *コンフィギュレーションビット設定***********************************************
 // DEVCFG3:
 #pragma config IOL1WAY  = OFF           // Peripheral Pin Select Configuration
 // DEVCFG2:
@@ -65,7 +65,7 @@ void _mon_putc(char data);
 void delay_us(unsigned int usec);
 void delay_ms(unsigned int msec);
 
-//???????
+//各種変数
 unsigned int ADCFlag=1,Counter=0;
 
 
@@ -74,17 +74,17 @@ int main(void)
     unsigned int Result = 0;
     float Voltage = 0;
     //System Setting
-    SYSTEMConfigPerformance(SYSCLK); //????????
-    mJTAGPortEnable(DEBUG_JTAGPORT_OFF); //PORTA is used I/O, JTAG port must be disabled.
+    SYSTEMConfigPerformance(SYSCLK);        //システム最適化設定
+    mJTAGPortEnable(DEBUG_JTAGPORT_OFF);    //PORTA is used I/O, JTAG port must be disabled.
 
-    mPORTBClearBits( BIT_5 );           //RB5?Low?
-    mPORTBSetPinsDigitalOut( BIT_5 );   //RB5???
+    mPORTBClearBits( BIT_5 );               //RB5　Low
+    mPORTBSetPinsDigitalOut( BIT_5 );       //RB5　出力に
      
-    mPORTBSetPinsDigitalIn( BIT_3| BIT_13 );
-    U1RXR = 0b0011;    //PIN RPB13 = RX
-    mPORTBClearBits( BIT_15 );
-    mPORTBSetPinsDigitalOut( BIT_15 );
-    RPB15R = 0b0001;   //PIN RPB15 = TX
+    mPORTBSetPinsDigitalIn( BIT_3| BIT_13 );//RB5　入力に
+    U1RXR = 0b0011;                         //PIN RPB13 = RX
+    mPORTBClearBits( BIT_15 );              //RB5　Low
+    mPORTBSetPinsDigitalOut( BIT_15 );      //RB5　出力に
+    RPB15R = 0b0001;                        //PIN RPB15 = TX
 
     UARTConfigure(UART1, UART_ENABLE_PINS_TX_RX_ONLY);
     UARTSetFifoMode(UART1, UART_INTERRUPT_ON_TX_NOT_FULL | UART_INTERRUPT_ON_RX_NOT_EMPTY);
@@ -101,7 +101,8 @@ int main(void)
     OpenADC10(AD1CON1R, AD1CON2R, AD1CON3R, AD1PCFGR, AD1CSSLR);
     EnableADC10();
 
-    //??????
+
+    //割り込み処理許可
     INTEnableSystemMultiVectoredInt();
 
     while(1)
