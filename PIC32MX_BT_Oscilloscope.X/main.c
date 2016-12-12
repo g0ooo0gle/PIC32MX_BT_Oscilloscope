@@ -108,11 +108,12 @@ int main(void)
     while(1)
     {
         mPORTBSetBits( BIT_5 );
-
+        
         ConvertADC10();				// 変換開始
-	while(BusyADC10());			// 変換完了待ち(1チャンネル分)
-	Result = ReadADC10(0);			// 変換結果読み出し
-
+        while(BusyADC10());			// 変換完了待ち(1チャンネル分)
+        Result = ReadADC10(0);			// 変換結果読み出し
+        
+        
 /*   
         if(ADCFlag)
             //printf("\r\nA/Ddata = %4u", Result);
@@ -130,16 +131,18 @@ int main(void)
 */     
     
         
-        //printf("\r\nVoltage = %4.3f", Voltage);
-        printf("%d,", Counter);
-        printf("%4u\r\n", Result);
         
             
         mPORTBClearBits( BIT_5 );
         
         Counter++;
 
-        delay_ms(50);
+        
+        if(0 == (Counter)%10000){
+            printf("%d,", Counter);
+            printf("%4u\r\n", Result);
+            delay_ms(50);
+        }
 
     }
 }
