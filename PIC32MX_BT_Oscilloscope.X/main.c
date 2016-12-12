@@ -13,6 +13,9 @@
  *              http://ww1.microchip.com/downloads/en//softwarelibrary/pic32%20peripheral%20library/pic32%20legacy%20peripheral%20libraries.zip
  *
  * Created on 2016/12/07, 15:47
+ * 
+ * ＜注意点＞
+ * スパゲッティコード化
  */
 
 
@@ -68,11 +71,15 @@ void delay_ms(unsigned int msec);
 //各種変数
 unsigned int ADCFlag=1,Counter=0;
 
+//バッファ
+unsigned int Bufresult[255];
 
 int main(void)
 {
     unsigned int Result = 0;
     float Voltage = 0;
+    
+    
     //System Setting
     SYSTEMConfigPerformance(SYSCLK);        //システム最適化設定
     mJTAGPortEnable(DEBUG_JTAGPORT_OFF);    //PORTA is used I/O, JTAG port must be disabled.
@@ -111,7 +118,7 @@ int main(void)
         
         ConvertADC10();				// 変換開始
         while(BusyADC10());			// 変換完了待ち(1チャンネル分)
-        Result = ReadADC10(0);			// 変換結果読み出し
+        Bufresult[Counter] = ReadADC10(0);			// 変換結果読み出し
         
         
 /*   
@@ -128,30 +135,43 @@ int main(void)
             printf("%\r\n%d,", Counter);
             printf("%4.3f,", Voltage);
         }
-*/     
-    
-        
-        
-            
+*/         
         mPORTBClearBits( BIT_5 );
         
-        Counter++;
-
+        //送信判定&送信処理
+        //sendprocessing();
         
-        if(0 == (Counter)%10000){
-            printf("%d,", Counter);
-            printf("%4u\r\n", Result);
-            delay_ms(50);
-        }
-
+        //デバッグ
+       // printf("%d,", Counter);
+        //printf("%4u\r\n", Result);
+        //delay_ms(50);
+        
+        Counter++;
+        
     }
 }
+int sendprocessing(void){
+    unsigned int Sendcounter =0;
+    
+    if(Counter == 255){
+    //カウンタつけて送信
+        for(Sendcounter=0;Sendcounter==255;Sendcounter++){
+            printf("%d,", Sendcounter);
+            printf("%4u\r\n", Bufresult[Sendcounter]);
+            delay_ms(50);
+            
+            Counter = 0;
+        }
+    }
+}
+
 
 void _mon_putc (char c){
    while (U1STAbits.UTXBF);
    U1TXREG = c;
 }
 
+//受信割り込み
 void __ISR(32, ipl2) U1RX_interrupt(void){
 	char RcvData;
 
