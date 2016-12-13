@@ -14,8 +14,7 @@
  *
  * Created on 2016/12/07, 15:47
  * 
- * ＜注意点＞
- * スパゲッティコード化
+ *  
  */
 
 
@@ -57,12 +56,31 @@
 #pragma config JTAGEN   = OFF           // JTAG Enable
 #pragma config DEBUG    = OFF           // Background Debugger Enable
 
-// ADC コンフィギュレーション
+/* ADC コンフィギュレーション****************************************************
+ *制御レジスタ1 
+ * |A/Dコンバータ 有効/無効|出力データ書式|
+ * |変換トリガーソース選択(MANUAL_サンプル有効化 (SAMP) ビットのクリア (手動変換))|自動サンプリング 有効/無効|
+ * |ADC サンプリングイネーブルビット(ADC のSHA はサンプリングする)
+*/
 #define AD1CON1R ADC_MODULE_OFF | ADC_FORMAT_INTG16 | ADC_CLK_MANUAL | ADC_AUTO_SAMPLING_ON |ADC_SAMP_ON
+/* 
+ *制御レジスタ2 
+ * |電圧リファレンス|入力オフセット校正モード選択|
+ * |MUX A 入力マルチプレクサCH0+ SHA スキャン入力選択設定|割り込み頻度 (バッファの使用数)n回のサンプリングと変換の完了ごとに割り込む|
+ * |バッファモード選択(ON_2つの8ワード バッファ/ OFF_1つの16ワード バッファ)|ADC サンプリングイネーブルビット(ADC のSHA はサンプリングする)
+*/
 #define AD1CON2R ADC_VREF_AVDD_AVSS | ADC_OFFSET_CAL_DISABLE | ADC_SCAN_OFF | ADC_SAMPLES_PER_INT_4 | ADC_ALT_BUF_OFF | ADC_ALT_INPUT_OFF
+/* 
+ *制御レジスタ3 
+ * |自動サンプル時間|変換クロック ソース|変換クロック
+ * 
+*/
 #define AD1CON3R ADC_SAMPLE_TIME_3 | ADC_CONV_CLK_SYSTEM | ADC_CONV_CLK_6Tcy
+/*AD1PCFG: ADC ポートコンフィグレーションレジスタ */
 #define AD1PCFGR (0x0000)
+/*AD1CSSL: ADC 入力スキャン選択レジスタ*/
 #define AD1CSSLR SKIP_SCAN_ALL
+//******************************************************************************
 
 void _mon_putc(char data);
 void delay_us(unsigned int usec);
