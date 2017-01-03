@@ -22,6 +22,7 @@
 #include <xc.h>
 #include <plib.h>
 #include <stdlib.h>
+#include <time.h>
 
 //*各種クロック******************************************************************
 // SYSCLK = 40 MHz (8MHz Crystal/ FPLLIDIV * FPLLMUL / FPLLODIV)
@@ -73,6 +74,7 @@ unsigned int ADCFlag=1,Counter=0;
 
 //バッファ
 unsigned int Bufresult[255];
+unsigned int Buftime[255];
 
 int main(void)
 {
@@ -111,16 +113,20 @@ int main(void)
 
     //割り込み処理許可
     INTEnableSystemMultiVectoredInt();
-
+    
+    clock_t StartTime , CountTime;
+    //StartTime = clock();
     while(1)
     {
         mPORTBSetBits( BIT_5 );
         
+        CountTime = clock(); //時間計測
+        //Buftime[Counter] = CountTime - StartTime;//差分を送信
+        Buftime[Counter] = CountTime;
+        
         ConvertADC10();				// 変換開始
         while(BusyADC10());			// 変換完了待ち(1チャンネル分)
         Bufresult[Counter] = ReadADC10(0);			// 変換結果読み出し
-        
-        
 /*   
         if(ADCFlag)
             //printf("\r\nA/Ddata = %4u", Result);
@@ -139,7 +145,7 @@ int main(void)
         mPORTBClearBits( BIT_5 );
         
         //送信判定&送信処理
-        //sendprocessing();
+        sendprocessing();
         
         //デバッグ
        // printf("%d,", Counter);
@@ -155,14 +161,19 @@ int sendprocessing(void){
     
     if(Counter == 255){
     //カウンタつけて送信
-        for(Sendcounter=0;Sendcounter==255;Sendcounter++){
-            printf("%d,", Sendcounter);
+        while(Sendcounter==255){
+            mPORTBClearBits( BIT_5 );               //RB5　Low
+            mPORTBSetPinsDigitalOut( BIT_5 ); 
+           // printf("%d,", Sendcounter);
+            printf("%4u\r\n", Buftime[Sendcounter] - Buftime[0]);//開始時間の差分を送信
             printf("%4u\r\n", Bufresult[Sendcounter]);
-            delay_ms(50);
-            
-            Counter = 0;
+            delay_ms(5000);
+            Sendcounter++;
+            mPORTBClearBits( BIT_5 ); 
         }
     }
+    printf("e");
+    Counter = 0;
 }
 
 
