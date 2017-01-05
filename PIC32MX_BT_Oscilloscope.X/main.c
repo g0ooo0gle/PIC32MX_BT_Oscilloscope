@@ -115,13 +115,13 @@ int main(void)
     INTEnableSystemMultiVectoredInt();
     
     clock_t StartTime , CountTime;
-    //StartTime = clock();
+    StartTime = clock();
     while(1)
     {
         mPORTBSetBits( BIT_5 );
         
         CountTime = clock(); //時間計測
-        //Buftime[Counter] = CountTime - StartTime;//差分を送信
+        Buftime[Counter] = CountTime - StartTime;//差分を送信
         Buftime[Counter] = CountTime;
         
         ConvertADC10();				// 変換開始
@@ -147,33 +147,35 @@ int main(void)
         //送信判定&送信処理
         sendprocessing();
         
+        
         //デバッグ
        // printf("%d,", Counter);
         //printf("%4u\r\n", Result);
         //delay_ms(50);
+        printf("%f",(double)(CountTime - StartTime));
         
         Counter++;
-        
     }
 }
 int sendprocessing(void){
-    unsigned int Sendcounter =0;
+    unsigned int Sendcounter = 0;
     
     if(Counter == 255){
     //カウンタつけて送信
-        while(Sendcounter==255){
+        while(Sendcounter <= 255){
             mPORTBClearBits( BIT_5 );               //RB5　Low
             mPORTBSetPinsDigitalOut( BIT_5 ); 
-           // printf("%d,", Sendcounter);
+            //printf("%d,", Sendcounter);
             printf("%4u\r\n", Buftime[Sendcounter] - Buftime[0]);//開始時間の差分を送信
             printf("%4u\r\n", Bufresult[Sendcounter]);
-            delay_ms(5000);
+            delay_ms(10);
             Sendcounter++;
             mPORTBClearBits( BIT_5 ); 
         }
+        printf("e");
+        Counter = 0;
+        Sendcounter = 0;
     }
-    printf("e");
-    Counter = 0;
 }
 
 
